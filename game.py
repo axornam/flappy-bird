@@ -1,6 +1,7 @@
 import random
 
 from bird import Bird
+from button import Button
 from pipe import Pipe
 import pygame
 from pygame.locals import *
@@ -28,6 +29,7 @@ WHITE = (255, 255, 255)
 # load images
 BACKGROUND_IMAGE = pygame.image.load('res/img/bg.png')
 GROUND_IMAGE = pygame.image.load('res/img/ground.png')
+BUTTON_IMAGE = pygame.image.load('res/img/restart.png')
 
 # game variables
 BG_1_SCROLL = 0
@@ -41,6 +43,7 @@ last_pipe = pygame.time.get_ticks() - PIPE_FREQ
 
 SCORE = 0
 PASS_PIPE = False
+RESTART = False
 
 
 bird_group = pygame.sprite.Group()
@@ -48,6 +51,19 @@ pipe_group = pygame.sprite.Group()
 
 flappy = Bird(100, int(SCREEN_HEIGHT / 2))
 bird_group.add(flappy)
+
+restart_button = Button(SCREEN_WIDTH // 2 - 50,
+                        SCREEN_HEIGHT // 2 - 100, BUTTON_IMAGE)
+
+
+def restart_game():
+    global SCORE, GAME_OVER, FLYING
+    pipe_group.empty()
+    flappy.rect.x = 100
+    flappy.rect.y = SCREEN_HEIGHT // 2
+    SCORE = 0
+    GAME_OVER = False
+    FLYING = False
 
 
 # game loop
@@ -82,6 +98,10 @@ while RUN:
                 RUN = False
             elif e.key == pygame.K_RETURN and FLYING == False and GAME_OVER == False:
                 FLYING = True
+            elif e.key == pygame.K_y and GAME_OVER == True:
+                restart_game()
+            elif e.key == pygame.K_n and GAME_OVER == True:
+                RUN = False
 
     # check the score
     if len(pipe_group) > 0:
@@ -147,6 +167,8 @@ while RUN:
             SCREEN_WIDTH / 2 - FONT.size('GAME OVER')[0] / 2), int(SCREEN_HEIGHT / 3))
         draw_text('RESTART ? y/n', FONT, screen,
                   WHITE, int(SCREEN_WIDTH / 2 - FONT.size('RESTART ? y/n')[0] / 2), int(SCREEN_HEIGHT / 2))
+
+        # restart_button.draw(screen)
 
     bird_group.update(event, flying=FLYING, game_over=GAME_OVER)
 
