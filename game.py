@@ -4,6 +4,7 @@ from bird import Bird
 from pipe import Pipe
 import pygame
 from pygame.locals import *
+from utils import draw_text
 
 
 pygame.init()
@@ -21,6 +22,9 @@ FPS = 60
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption('Flappy Bird')
 
+FONT = pygame.font.SysFont('FiraCode Nerd Font', 90, bold=True)
+WHITE = (255, 255, 255)
+
 # load images
 BACKGROUND_IMAGE = pygame.image.load('res/img/bg.png')
 GROUND_IMAGE = pygame.image.load('res/img/ground.png')
@@ -34,6 +38,9 @@ GAME_OVER = False
 PIPE_GAP = 150
 PIPE_FREQ = 1500  # milliseconds
 last_pipe = pygame.time.get_ticks() - PIPE_FREQ
+
+SCORE = 0
+PASS_PIPE = False
 
 
 bird_group = pygame.sprite.Group()
@@ -76,6 +83,17 @@ while RUN:
             elif e.key == pygame.K_RETURN and FLYING == False and GAME_OVER == False:
                 FLYING = True
 
+    # check the score
+    if len(pipe_group) > 0:
+        if bird_group.sprites()[0].rect.left > pipe_group.sprites()[0].rect.left:
+            if bird_group.sprites()[0].rect.right < pipe_group.sprites()[0].rect.right:
+                if PASS_PIPE == False:
+                    PASS_PIPE = True
+        if PASS_PIPE == True:
+            if bird_group.sprites()[0].rect.left > pipe_group.sprites()[0].rect.right:
+                SCORE += 1
+                PASS_PIPE = False
+
     # collision detection
     if pygame.sprite.groupcollide(bird_group, pipe_group, False, False) or flappy.rect.top < 0:
         GAME_OVER = True
@@ -85,7 +103,15 @@ while RUN:
         GAME_OVER = True
         FLYING = False
 
-    if not GAME_OVER and FLYING:
+    if not GAME_OVER and not FLYING:
+        draw_text('PRESS ENTER', FONT, screen, WHITE, int(
+            SCREEN_WIDTH / 2 - FONT.size('PRESS ENTER')[0] / 2
+        ), int(SCREEN_HEIGHT / 3))
+
+    elif not GAME_OVER and FLYING:
+        # draw scores
+        draw_text(str(SCORE), FONT, screen, WHITE, int(SCREEN_WIDTH / 2), 0)
+
         # generate new pipes
         time_now = pygame.time.get_ticks()
         if time_now - last_pipe > PIPE_FREQ:
@@ -111,6 +137,16 @@ while RUN:
             # GROUND_SCROLL = 0
 
         pipe_group.update(SCROLL_SPEED)
+
+    elif GAME_OVER == True:
+        draw_text(f"HIGH SCORE: {SCORE}", FONT, screen, WHITE, int(
+            SCREEN_WIDTH / 2 - FONT.size(f"HIGH SCORE: {SCORE}")[0] / 2
+        ), int(SCREEN_HEIGHT / 6))
+
+        draw_text('GAME OVER', FONT, screen, WHITE, int(
+            SCREEN_WIDTH / 2 - FONT.size('GAME OVER')[0] / 2), int(SCREEN_HEIGHT / 3))
+        draw_text('RESTART ? y/n', FONT, screen,
+                  WHITE, int(SCREEN_WIDTH / 2 - FONT.size('RESTART ? y/n')[0] / 2), int(SCREEN_HEIGHT / 2))
 
     bird_group.update(event, flying=FLYING, game_over=GAME_OVER)
 
