@@ -1,6 +1,7 @@
 import random
 
 from bird import Bird
+from pipe import Pipe
 import pygame
 from pygame.locals import *
 
@@ -30,11 +31,18 @@ BG_2_SCROLL = BACKGROUND_IMAGE.get_width()
 SCROLL_SPEED = 4
 FLYING = False
 GAME_OVER = False
+PIPE_GAP = 150
 
+bird_group = pygame.sprite.Group()
+pipe_group = pygame.sprite.Group()
 
 flappy = Bird(100, int(SCREEN_HEIGHT / 2))
-bird_group = pygame.sprite.Group()
 bird_group.add(flappy)
+
+top_pipe = Pipe(300, int(SCREEN_HEIGHT / 2), 1, pipe_gap=PIPE_GAP)
+bottom_pipe = Pipe(300, int(SCREEN_HEIGHT / 2), -1, pipe_gap=PIPE_GAP)
+pipe_group.add(top_pipe)
+pipe_group.add(bottom_pipe)
 
 # game loop
 RUN = True
@@ -49,6 +57,7 @@ while RUN:
 
     # draw bird group
     bird_group.draw(screen)
+    pipe_group.draw(screen)
 
     # images after the first leaves the screen
     screen.blit(GROUND_IMAGE, (BG_1_SCROLL, SCREEN_HEIGHT -
@@ -86,6 +95,7 @@ while RUN:
             # GROUND_SCROLL = 0
 
     bird_group.update(event, flying=FLYING, game_over=GAME_OVER)
+    pipe_group.update(SCROLL_SPEED)
 
     # re-render screen with updates
     pygame.display.update()
