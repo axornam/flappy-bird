@@ -15,3 +15,6 @@ class Pipe(pygame.sprite.Sprite):
 
     def update(self, SCROLL_SPEED: int = 0):
         self.rect.x -= SCROLL_SPEED
+
+        if self.rect.right < 0:
+            self.kill()
