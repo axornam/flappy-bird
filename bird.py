@@ -14,16 +14,43 @@ class Bird(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = [x, y]
 
-    def update(self):
-        # handle flappy animation
-        self.counter += 1
-        flap_cooldown = 5
+        self.velocity = 0
+        self.jumped = False
 
-        if self.counter > flap_cooldown:
-            self.counter = 0
-            self.index += 1
+    def update(self, event: pygame.event.Event = None, flying: bool = False, game_over: bool = False):
 
-            if self.index >= len(self.images):
-                self.index = 0
+        # add gravity to bring bird down
+        if flying:
+            self.velocity += 0.5
+            if self.velocity > 8:
+                self.velocity = 8
 
-        self.image = self.images[self.index]
+            if self.rect.bottom < 768:
+                self.rect.y += int(self.velocity)
+
+        if not game_over:
+            # add jumping
+            if event is not None:
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_UP and self.jumped == False:
+                        self.jumped = True
+                        self.velocity = -10
+                if event.type == pygame.KEYUP:
+                    self.jumped = False
+
+            # handle flappy animation
+            self.counter += 1
+            flap_cooldown = 5
+
+            if self.counter > flap_cooldown:
+                self.counter = 0
+                self.index += 1
+                if self.index >= len(self.images):
+                    self.index = 0
+            self.image = self.images[self.index]
+
+            # rotate bird
+            self.image = pygame.transform.rotate(
+                self.images[self.index], self.velocity * -2)
+        else:
+            self.image = pygame.transform.rotate(self.images[self.index], -90)
