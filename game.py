@@ -3,6 +3,8 @@ import random
 import pygame
 from pygame.locals import *
 
+from bird import Bird
+
 
 pygame.init()
 
@@ -27,6 +29,13 @@ BG_1_SCROLL = 0
 BG_2_SCROLL = BACKGROUND_IMAGE.get_width()
 SCROLL_SPEED = 4
 
+
+bird_group = pygame.sprite.Group()
+
+flappy = Bird(100, int(SCREEN_HEIGHT / 2))
+
+bird_group.add(flappy)
+
 # game loop
 RUN = True
 while RUN:
@@ -48,6 +57,10 @@ while RUN:
     screen.blit(GROUND_IMAGE,
                 (BG_2_SCROLL, SCREEN_HEIGHT -
                  GROUND_IMAGE.get_height()))
+
+    # draw bird group
+    bird_group.draw(screen)
+    bird_group.update()
 
     # poll events
     for event in pygame.event.get():
